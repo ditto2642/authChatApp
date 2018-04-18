@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="script.js"></script>
+</head>
+<body>
+Currently implementing limited use account creation keys, i will have one availible for testing until I feel done. <br>
+Unlimited use key: welcome
+<br>
+Make a new account:<br>
+Username: <input id="SUuse" type="text"><br>
+Password: <input id="SUpass" type="text"><br>
+Account creation key: <input id="acKey" type="text"><br>
+<button onclick="newAccount(document.getElementById('SUuse').value, document.getElementById('SUpass').value,document.getElementById('acKey').value)">Create Account</button><br><br>
+Already have an account?, login:<br>
+Username: <input id="LOuse" type="text"><br>
+Password: <input id="LOpass" type="text"><br>
+<button onclick="login(document.getElementById('LOuse').value, document.getElementById('LOpass').value)">Login</button>
+</body>
+</html>
