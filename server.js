@@ -181,8 +181,8 @@ app.get("/news/:key", (req, res) => {
   }
 });
 
-var adminKeyword = [";", "'"];
-app.get("/postNews/:key/:text/:title",(req,res)=>{
+var adminKeyword = [";","'"];
+app.get(`/postNews/:key/:text/:title`,(req,res)=>{
   keys = validSessions.map(x => x[0]);
   keyIndex = keys.indexOf(req.params.key);
   for (i = 0; i < adminKeyword.length; i++) {
