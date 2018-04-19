@@ -16,9 +16,9 @@
     * title (varchar(255))
     * ptext (text)
     * ptime (bigint)
-  * node.js with the packages described in `package.json` installed
+* node.js with the packages described in `package.json` installed
 ## Get started
-Before anything will work, make sure you have both tables created, and you will probably want to have one row with -1 uses (which lets it be used unlimited times).
+Before anything will work, make sure you have both tables created, and you will probably want to have one row with -1 uses (which lets it be used unlimited times) in the accountKeys table, so people can actually make accounts, I recoment `welcome` for testing.
 
 Start the server with node with a single argument being the password for the account being used on your DB (default `root`) (`node server.js dbPass`)
 
