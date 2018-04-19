@@ -6,6 +6,7 @@
     * username (varchar(255))
     * passHash (varchar(255))
     * hashSalt (varhcar(255))
+    * admin (boolean)
   * Table called `accountKeys` with these columns:
     * id (auto-counting int)
     * auth (varchar(255))
@@ -13,7 +14,7 @@
   * Table called `news` with these columns:
     * id (auto-counting int)
     * title (varchar(255))
-    * ptext (varchar(255))
+    * ptext (text)
     * ptime (bigint)
   * node.js with the packages described in `package.json` installed
 ## Get started

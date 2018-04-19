@@ -1,0 +1,21 @@
+<!DOCTYPE html><html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script>
+key = window.location.pathname.split('/')[2];
+function post(){
+  $.get(`/postNews/${key}/${document.getElementById('text').value.split('/').join('%2F')}/${document.getElementById('title').value}`, (data)=>{alert(data)});
+}
+function goBack() {
+    window.history.back();
+}
+</script>
+</head>
+<body>
+<h1>Post new news</h1>
+Title: <input id="title" type="text"><br>
+Article Content (No semicolons (;) or single quotes (')): <br><textarea id="text"></textarea><br>
+<button onclick="post()">Post</button>
+<br><a href="index.html">Go Back</a>
+</body>
+</html>

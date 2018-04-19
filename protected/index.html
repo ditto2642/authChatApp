@@ -9,10 +9,10 @@
 </head>
 <body><a href="chat.html">Click here to go to the chat room</a><br>
 <h2>Site news:</h2>
-<div style="width: 700px; height:500px; overflow: auto; text-align:left">
+<div style="width: 700px; max-height:500px; overflow: auto; text-align:left">
 <ul id="news"></ul>
-</div>
-<div id="article"></div>
+</div><a href="post.html">Post a new news article (admins only)</a>
+<div id="article" style="max-width:800px"></div>
 <script>
 function showNews(id){
   piece = articles[id];

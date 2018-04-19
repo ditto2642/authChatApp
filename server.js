@@ -1,6 +1,6 @@
 /**
-* @param databasePassword
-**/
+ * @param databasePassword
+ **/
 
 const express = require('express');
 app = express();
@@ -31,7 +31,7 @@ hash.update("meme");
 console.log(hash.digest('hex'));
 
 
-con.connect((err)=> {
+con.connect((err) => {
   if (err) throw err;
   console.log("Connected!");
 });
@@ -47,17 +47,17 @@ var response;
 var request;
 
 //some of this socket stuff taken from socket.io chat example
-io.on('connection', (socket)=>{
-  socket.on('message', (data)=>{
+io.on('connection', (socket) => {
+  socket.on('message', (data) => {
     keys = validSessions.map(x => x[0]);
     keyIndex = keys.indexOf(data.session);
-    if (keyIndex != -1 && new Date().getTime() - validSessions[keyIndex][1] <= 420000) {
+    if (keyIndex != -1 && new Date().getTime() - validSessions[keyIndex][1] <= 900000) {
       validSessions[keyIndex][1] = new Date().getTime();
       time = new Date();
-      io.emit('message', validSessions[keyIndex][2]+" @ "+(time.getHours())+":"+((t)=>t<10?"0"+t:""+t)(time.getMinutes())+" : "+ data.message);
+      io.emit('message', validSessions[keyIndex][2] + " @ " + (time.getHours()) + ":" + ((t) => t < 10 ? "0" + t : "" + t)(time.getMinutes()) + " : " + data.message);
     } else {
       console.log("removed at index " + keyIndex + ", " + validSessions.join(", "));
-      if(keyIndex != -1) validSessions.splice(keyIndex, 1);
+      if (keyIndex != -1) validSessions.splice(keyIndex, 1);
     }
   });
 });
@@ -66,8 +66,8 @@ io.on('connection', (socket)=>{
 app.get('/newUser/:use/:pass/:acKey', (req, res) => {
   response = res;
   request = req;
-  for(i=0;i<keywords.length;i++){
-    if(req.url.toLowerCase().indexOf(keywords[i])!=-1){
+  for (i = 0; i < keywords.length; i++) {
+    if (req.url.toLowerCase().indexOf(keywords[i]) != -1) {
       res.send("oi, fuck off with those SQL keywords (or semicolon, or either apostrophe), if this message isnt for you, please refrain from using full real words, semicolons, or apostrophes in your password/username");
       return false;
     }
@@ -75,45 +75,58 @@ app.get('/newUser/:use/:pass/:acKey', (req, res) => {
   con.query(`SELECT * FROM login; SELECT * FROM accountKeys WHERE auth = '${req.params.acKey}'`, (err, result) => {
     if (err) console.log(err);
     names = result[0].map(x => x.username);
-    if (names.includes(request.params.use)){ response.send("account already exists");return false;}``
-    if(result[1].length==0){response.send("Invalid account creation key");return false;}
-    uses = result[1][0].uses;
-    if(result[1].length==0||uses==0){
-      if(result[1][0].uses==0) con.query(`DELETE FROM accountKeys WHERE id = '${result[1][0].id}'`);
+    if (names.includes(request.params.use)) {
+      response.send("account already exists");
+      return false;
+    }
+    ``
+    if (result[1].length == 0) {
       response.send("Invalid account creation key");
       return false;
     }
-    if(uses != -1) con.query(`UPDATE accountKeys SET uses = ${uses-1} WHERE id = '${result[1][0].id}'`);
+    uses = result[1][0].uses;
+    if (result[1].length == 0 || uses == 0) {
+      if (result[1][0].uses == 0) con.query(`DELETE FROM accountKeys WHERE id = '${result[1][0].id}'`);
+      response.send("Invalid account creation key");
+      return false;
+    }
+    if (uses != -1) con.query(`UPDATE accountKeys SET uses = ${uses-1} WHERE id = '${result[1][0].id}'`);
 
-      salt = makeid(7);
-      hash = crypto.createHash('sha256');
-      hash.update(request.params.pass + salt);
-      sql = `INSERT INTO login (username, passHash, hashSalt) VALUES ('${request.params.use}', '${hash.digest('hex')}', '${salt}')`;
-      con.query(sql, (err, res) => {
-        if (err) throw err;
-        console.log("new user");
-        response.send("account created");
-      });
+    salt = makeid(7);
+    hash = crypto.createHash('sha256');
+    hash.update(request.params.pass + salt);
+    sql = `INSERT INTO login (username, passHash, hashSalt) VALUES ('${request.params.use}', '${hash.digest('hex')}', '${salt}')`;
+    con.query(sql, (err, res) => {
+      if (err) throw err;
+      console.log("new user");
+      response.send("account created");
+    });
 
   });
 });
 
 
 var temp;
-var keywords= ["delete","insert","drop", ";", "'", '"', "select", "from"];
+var keywords = ["delete", "insert", "drop", ";", "'", '"', "select", "from"];
 app.get('/login/:use/:pass', (req, res) => {
   response = res;
   request = req;
-  for(i=0;i<keywords.length;i++){
-    if(req.url.toLowerCase().indexOf(keywords[i])!=-1){
-      res.send({status:false, key:"oi, fuck off with those SQL keywords (or semicolon, or either apostrophe), if this message isnt for you, please refrain from using full real words, semicolons, or apostrophes in your password/username"});
+  for (i = 0; i < keywords.length; i++) {
+    if (req.url.toLowerCase().indexOf(keywords[i]) != -1) {
+      res.send({
+        status: false,
+        key: "oi, fuck off with those SQL keywords (or semicolon, or either apostrophe), if this message isnt for you, please refrain from using full real words, semicolons, or apostrophes in your password/username"
+      });
       return false;
     }
   }
   sql = `SELECT * FROM login WHERE username = '${req.params.use}'`;
   con.query(sql, (err, result) => {
     if (err) throw err;
-    if (result.length == 0) response.send({status:false,key:"Account does not exist"});
+    if (result.length == 0) response.send({
+      status: false,
+      key: "Account does not exist"
+    });
     else {
       hash = crypto.createHash('sha256');
       hash.update(request.params.pass + result[0].hashSalt);
@@ -124,7 +137,10 @@ app.get('/login/:use/:pass', (req, res) => {
           status: true,
           key: newAuth
         });
-      } else response.send({status:false,key:"Invalid password"});
+      } else response.send({
+        status: false,
+        key: "Invalid password"
+      });
     }
   });
 });
@@ -132,7 +148,7 @@ app.get('/login/:use/:pass', (req, res) => {
 app.get("/protected/:key/:page", (req, res) => {
   keys = validSessions.map(x => x[0]);
   keyIndex = keys.indexOf(req.params.key);
-  if (keyIndex != -1 && new Date().getTime() - validSessions[keyIndex][1] <= 420000) {
+  if (keyIndex != -1 && new Date().getTime() - validSessions[keyIndex][1] <= 900000) {
     validSessions[keyIndex][1] = new Date().getTime();
     path = '/protected/' + req.params.page ? req.params.page : 'index.html';
     res.sendFile(path, {
@@ -140,26 +156,46 @@ app.get("/protected/:key/:page", (req, res) => {
     });
   } else {
     console.log("removed at index " + keyIndex + ", " + validSessions.join(", "))
-    if(keyIndex != -1) validSessions.splice(keyIndex, 1);
+    if (keyIndex != -1) validSessions.splice(keyIndex, 1);
     res.sendFile(__dirname + "/badSession.html");
   }
 });
 
-app.get("/news/:key",(req,res)=>{
+app.get("/news/:key", (req, res) => {
   response = res;
   request = req;
   keys = validSessions.map(x => x[0]);
   keyIndex = keys.indexOf(req.params.key);
-  if (keyIndex != -1 && new Date().getTime() - validSessions[keyIndex][1] <= 420000) {
+  if (keyIndex != -1 && new Date().getTime() - validSessions[keyIndex][1] <= 900000) {
     validSessions[keyIndex][1] = new Date().getTime();
-    con.query(`select * from news`, (err,result)=>{
-      if(err) console.log(err);
+    con.query(`select * from news`, (err, result) => {
+      if (err) console.log(err);
       response.send(result);
     });
+  } else {
+    res.send([{
+      time: 0,
+      title: "Auth key no work"
+    }])
+    if (keyIndex != -1) validSessions.splice(keyIndex, 1);
   }
-  else{
-    res.send([{time:0, title:"Auth key no work"}])
-    if(keyIndex != -1) validSessions.splice(keyIndex, 1);
+});
+
+var adminKeyword = [";", "'"];
+app.get("/postNews/:key/:text/:title",(req,res)=>{
+  keys = validSessions.map(x => x[0]);
+  keyIndex = keys.indexOf(req.params.key);
+  for (i = 0; i < adminKeyword.length; i++) {
+    if (req.url.toLowerCase().indexOf(adminKeyword[i]) != -1) {
+      res.send("Please remove all semicolons");
+      return false;
+    }
+  }
+  if(validSessions[keyIndex]?validSessions[keyIndex][3]:false){
+    con.query(`insert into news (title,ptext,ptime) values ('${req.params.title}', '${req.params.text}', ${new Date().getTime()})`);
+    res.send("posted");
+  } else {
+    res.send("you do not have permission to post news");
   }
 });
 
