@@ -10,6 +10,11 @@
     * id (auto-counting int)
     * auth (varchar(255))
     * uses (int)
+  * Table called `news` with these columns:
+    * id (auto-counting int)
+    * title (varchar(255))
+    * ptext (varchar(255))
+    * ptime (bigint)
   * node.js with the packages described in `package.json` installed
 ## Get started
 Before anything will work, make sure you have both tables created, and you will probably want to have one row with -1 uses (which lets it be used unlimited times).

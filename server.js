@@ -119,7 +119,7 @@ app.get('/login/:use/:pass', (req, res) => {
       hash.update(request.params.pass + result[0].hashSalt);
       if (hash.digest('hex') == result[0].passHash) {
         newAuth = makeid(15);
-        validSessions.push([newAuth, new Date().getTime(), result[0].username]);
+        validSessions.push([newAuth, new Date().getTime(), result[0].username, result[0].admin]);
         response.send({
           status: true,
           key: newAuth
@@ -145,7 +145,26 @@ app.get("/protected/:key/:page", (req, res) => {
   }
 });
 
+app.get("/news/:key",(req,res)=>{
+  response = res;
+  request = req;
+  keys = validSessions.map(x => x[0]);
+  keyIndex = keys.indexOf(req.params.key);
+  if (keyIndex != -1 && new Date().getTime() - validSessions[keyIndex][1] <= 420000) {
+    validSessions[keyIndex][1] = new Date().getTime();
+    con.query(`select * from news`, (err,result)=>{
+      if(err) console.log(err);
+      response.send(result);
+    });
+  }
+  else{
+    res.send([{time:0, title:"Auth key no work"}])
+    if(keyIndex != -1) validSessions.splice(keyIndex, 1);
+  }
+});
+
 app.get('*', (req, res) => {
+  console.log("someone tried to go to: " + req.url);
   res.sendFile(__dirname + "/404.html");
 });
 

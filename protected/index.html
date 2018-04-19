@@ -1,6 +1,30 @@
 <!DOCTYPE html><html>
 <head>
 <link rel="shortcut icon" href="favicon.ico"/>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<style>
+#news li:nth-child(odd) { background: #eee; }
+#news { list-style-type: none}
+</style>
 </head>
-<body><a href="chat.html">Click here to go to the chat room</a></body>
+<body><a href="chat.html">Click here to go to the chat room</a><br>
+<h2>Site news:</h2>
+<div style="width: 700px; height:500px; overflow: auto; text-align:left">
+<ul id="news"></ul>
+</div>
+<div id="article"></div>
+<script>
+function showNews(id){
+  piece = articles[id];
+  document.getElementById("article").innerHTML = `<h2>${piece.title}</h2>@ ${new Date(piece.ptime).toString()}<p>${piece.ptext}</p>`;
+}
+key = window.location.pathname.split('/')[2];
+var articles;
+$.get(`/news/${key}`, (data)=>{
+  articles = data;
+  console.log(data);
+  data.forEach((x,y)=>{$('#news').prepend($('<li>').html(`<h3><a href='javascript:undefined' onclick='showNews(${y})'>${x.title}</a></h3>@ ${new Date(x.ptime).toString()}`))});
+});
+</script>
+</body>
 </html>
