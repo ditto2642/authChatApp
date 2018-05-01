@@ -25,8 +25,8 @@
 <script>
 //taken and edited from https://socket.io/get-started/chat/
 var elem = document.getElementById('messages');
+path = window.location.pathname.split('/');
 $(function () {
-  path = window.location.pathname.split('/');
   var socket = io();
   $('form').submit(function(){
     if($('#m').val()!="")socket.emit('message', {message:$('#m').val(), session: path[2]});
@@ -35,7 +35,10 @@ $(function () {
     return false;
   });
   socket.on('message', function(msg){
-    $('#messages').prepend($('<li>').text(msg));
+    $('#messages').prepend($('<li>').html(msg));
+  });
+  $.get(`/ltm/${path[2]}`, data=>{
+    data.forEach(x=>$('#messages').prepend($('<li>').html(x)));
   });
 });
 

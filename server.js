@@ -15,8 +15,8 @@ app.use(express.static(__dirname + '/public'));
 const port = 80;
 
 var validSessions = [];
+var last20Msg = [];
 databasePassword = process.argv[2];
-
 var con = mysql.createConnection({
   host: "localhost",
   user: "root",
@@ -54,12 +54,24 @@ io.on('connection', (socket) => {
     if (keyIndex != -1 && new Date().getTime() - validSessions[keyIndex][1] <= 900000) {
       validSessions[keyIndex][1] = new Date().getTime();
       time = new Date();
-      io.emit('message', validSessions[keyIndex][2] + " @ " + (time.getHours()) + ":" + ((t) => t < 10 ? "0" + t : "" + t)(time.getMinutes()) + " : " + data.message);
+      msg = validSessions[keyIndex][2] + " @ " + (time.getHours()) + ":" + ((t) => t < 10 ? "0" + t : "" + t)(time.getMinutes()) + " : " + data.message;
+      io.emit('message', msg);
+      last20Msg.push(msg);
+      if(last20Msg.length>=20) last20Msg.shift();
     } else {
       console.log("removed at index " + keyIndex + ", " + validSessions.join(", "));
       if (keyIndex != -1) validSessions.splice(keyIndex, 1);
     }
   });
+});
+
+app.get('/ltm/:key', (req,res)=>{
+  keys = validSessions.map(x => x[0]);
+  keyIndex = keys.indexOf(req.params.key);
+  if (keyIndex != -1 && new Date().getTime() - validSessions[keyIndex][1] <= 900000) {
+    validSessions[keyIndex][1] = new Date().getTime();
+    res.send(last20Msg);
+  }
 });
 
 //salt length should be 7 characters
@@ -181,7 +193,7 @@ app.get("/news/:key", (req, res) => {
   }
 });
 
-var adminKeyword = [";","'"];
+var adminKeyword = ["jduewhfuriehfuiehauiowvfidsalohvu"];
 app.get(`/postNews/:key/:text/:title`,(req,res)=>{
   keys = validSessions.map(x => x[0]);
   keyIndex = keys.indexOf(req.params.key);

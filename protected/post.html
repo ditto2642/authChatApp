@@ -4,7 +4,7 @@
 <script>
 key = window.location.pathname.split('/')[2];
 function post(){
-  $.get(encodeURI(`/postNews/${key}/${document.getElementById('text').value}/${document.getElementById('title').value}`.split('?').join('%3F')), (data)=>{alert(data)});
+  $.get(encodeURI(`/postNews/${key}/${document.getElementById('text').value.split("/").join("%2F")}/${document.getElementById('title').value.split("/").join("%2F")}`.split('?').join('%3F').split("'").join("%27")), (data)=>{alert(data)});
 }
 function goBack() {
     window.history.back();

@@ -16,14 +16,14 @@
 <script>
 function showNews(id){
   piece = articles[id];
-  document.getElementById("article").innerHTML = `<h2>${piece.title.split("%3F").join("?")}</h2>@ ${new Date(piece.ptime).toString()}<p>${piece.ptext.split("%3F").join("?")}</p>`;
+  document.getElementById("article").innerHTML = `<h2>${piece.title.split("%3F").join("?").split("%2F").join("/")}</h2>@ ${new Date(piece.ptime).toString()}<p>${piece.ptext.split("%3F").join("?").split("%27").join("'").split("%2F").join("/")}</p>`;
 }
 key = window.location.pathname.split('/')[2];
 var articles;
 $.get(`/news/${key}`, (data)=>{
   articles = data;
   console.log(data);
-  data.forEach((x,y)=>{$('#news').prepend($('<li>').html(`<h3><a href='javascript:undefined' onclick='showNews(${y})'>${x.title.split("%3F").join("?")}</a></h3>@ ${new Date(x.ptime).toString()}`))});
+  data.forEach((x,y)=>{$('#news').prepend($('<li>').html(`<h3><a href='javascript:undefined' onclick='showNews(${y})'>${x.title.split("%3F").join("?").split("%2F").join("/")}</a></h3>@ ${new Date(x.ptime).toString()}`))});
 });
 </script>
 </body>
