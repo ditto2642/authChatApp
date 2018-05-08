@@ -54,7 +54,8 @@ io.on('connection', (socket) => {
     if (keyIndex != -1 && new Date().getTime() - validSessions[keyIndex][1] <= 900000) {
       validSessions[keyIndex][1] = new Date().getTime();
       time = new Date();
-      msg = validSessions[keyIndex][2] + " @ " + (time.getHours()) + ":" + ((t) => t < 10 ? "0" + t : "" + t)(time.getMinutes()) + " : " + data.message;
+      msg = (validSessions[keyIndex][2]+" @ "+(time.getHours())+":"+((t)=>t<10?"0"+t:""+t)(time.getMinutes()) + " : " + (data.message.indexOf("<script")==-1?data.message:"message contains a script and has not been sent"));
+
       io.emit('message', msg);
       last20Msg.push(msg);
       if(last20Msg.length>=20) last20Msg.shift();
@@ -95,6 +96,10 @@ app.get('/newUser/:use/:pass/:acKey', (req, res) => {
     if (result[1].length == 0) {
       response.send("Invalid account creation key");
       return false;
+    }
+    if(request.params.use.indexOf("<script")!=-1){
+        response.send("no script tags");
+        return false;
     }
     uses = result[1][0].uses;
     if (result[1].length == 0 || uses == 0) {
