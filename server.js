@@ -198,13 +198,13 @@ app.get("/news/:key", (req, res) => {
   }
 });
 
-var adminKeyword = ["jduewhfuriehfuiehauiowvfidsalohvu"];
+var adminKeyword = ["jduewhfuriehfuiehauiowvfidsalohvu", "<script", "</script"];
 app.get(`/postNews/:key/:text/:title`,(req,res)=>{
   keys = validSessions.map(x => x[0]);
   keyIndex = keys.indexOf(req.params.key);
   for (i = 0; i < adminKeyword.length; i++) {
     if (req.url.toLowerCase().indexOf(adminKeyword[i]) != -1) {
-      res.send("Please remove all semicolons");
+      res.send("Please remove all semicolons and script tags");
       return false;
     }
   }
