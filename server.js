@@ -43,8 +43,7 @@ function makeid(x) {
   for (var i = 0; i < x; i++) text += possible.charAt(Math.floor(Math.random() * possible.length));
   return text;
 }
-var response;
-var request;
+
 
 //some of this socket stuff taken from socket.io chat example
 io.on('connection', (socket) => {
@@ -77,8 +76,6 @@ app.get('/ltm/:key', (req,res)=>{
 
 //salt length should be 7 characters
 app.get('/newUser/:use/:pass/:acKey', (req, res) => {
-  response = res;
-  request = req;
   for (i = 0; i < keywords.length; i++) {
     if (req.url.toLowerCase().indexOf(keywords[i]) != -1) {
       res.send("oi, fuck off with those SQL keywords (or semicolon, or either apostrophe), if this message isnt for you, please refrain from using full real words, semicolons, or apostrophes in your password/username");
@@ -88,35 +85,35 @@ app.get('/newUser/:use/:pass/:acKey', (req, res) => {
   con.query(`SELECT * FROM login; SELECT * FROM accountKeys WHERE auth = '${req.params.acKey}'`, (err, result) => {
     if (err) console.log(err);
     names = result[0].map(x => x.username);
-    if (names.includes(request.params.use)) {
-      response.send("account already exists");
+    if (names.includes(req.params.use)) {
+      res.send("account already exists");
       return false;
     }
-    ``
+
     if (result[1].length == 0) {
-      response.send("Invalid account creation key");
+      res.send("Invalid account creation key");
       return false;
     }
-    if(request.params.use.indexOf("<script")!=-1){
-        response.send("no script tags");
+    if(req.params.use.indexOf("<script")!=-1){
+        res.send("no script tags");
         return false;
     }
     uses = result[1][0].uses;
     if (result[1].length == 0 || uses == 0) {
       if (result[1][0].uses == 0) con.query(`DELETE FROM accountKeys WHERE id = '${result[1][0].id}'`);
-      response.send("Invalid account creation key");
+      res.send("Invalid account creation key");
       return false;
     }
     if (uses != -1) con.query(`UPDATE accountKeys SET uses = ${uses-1} WHERE id = '${result[1][0].id}'`);
 
     salt = makeid(7);
     hash = crypto.createHash('sha256');
-    hash.update(request.params.pass + salt);
-    sql = `INSERT INTO login (username, passHash, hashSalt) VALUES ('${request.params.use}', '${hash.digest('hex')}', '${salt}')`;
+    hash.update(req.params.pass + salt);
+    sql = `INSERT INTO login (username, passHash, hashSalt) VALUES ('${req.params.use}', '${hash.digest('hex')}', '${salt}')`;
     con.query(sql, (err, res) => {
       if (err) throw err;
       console.log("new user");
-      response.send("account created");
+      res.send("account created");
     });
 
   });
@@ -126,8 +123,6 @@ app.get('/newUser/:use/:pass/:acKey', (req, res) => {
 var temp;
 var keywords = ["delete", "insert", "drop", ";", "'", '"', "select", "from"];
 app.get('/login/:use/:pass', (req, res) => {
-  response = res;
-  request = req;
   for (i = 0; i < keywords.length; i++) {
     if (req.url.toLowerCase().indexOf(keywords[i]) != -1) {
       res.send({
@@ -140,21 +135,21 @@ app.get('/login/:use/:pass', (req, res) => {
   sql = `SELECT * FROM login WHERE username = '${req.params.use}'`;
   con.query(sql, (err, result) => {
     if (err) throw err;
-    if (result.length == 0) response.send({
+    if (result.length == 0) res.send({
       status: false,
       key: "Account does not exist"
     });
     else {
       hash = crypto.createHash('sha256');
-      hash.update(request.params.pass + result[0].hashSalt);
+      hash.update(req.params.pass + result[0].hashSalt);
       if (hash.digest('hex') == result[0].passHash) {
         newAuth = makeid(15);
         validSessions.push([newAuth, new Date().getTime(), result[0].username, result[0].admin]);
-        response.send({
+        res.send({
           status: true,
           key: newAuth
         });
-      } else response.send({
+      } else res.send({
         status: false,
         key: "Invalid password"
       });
@@ -179,15 +174,13 @@ app.get("/protected/:key/:page", (req, res) => {
 });
 
 app.get("/news/:key", (req, res) => {
-  response = res;
-  request = req;
   keys = validSessions.map(x => x[0]);
   keyIndex = keys.indexOf(req.params.key);
   if (keyIndex != -1 && new Date().getTime() - validSessions[keyIndex][1] <= 900000) {
     validSessions[keyIndex][1] = new Date().getTime();
     con.query(`select * from news`, (err, result) => {
       if (err) console.log(err);
-      response.send(result);
+      res.send(result);
     });
   } else {
     res.send([{
@@ -223,6 +216,5 @@ app.get('*', (req, res) => {
 
 http.listen(port, (err) => {
   if (err) return console.log('error', err);
-
   console.log('listening on port ' + port);
 });
