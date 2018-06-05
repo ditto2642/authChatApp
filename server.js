@@ -31,7 +31,7 @@ hash.update("meme");
 console.log(hash.digest('hex'));
 
 
-con.connect((err) => {
+con.connect((err)=> {
   if (err) throw err;
   console.log("Connected!");
 });
@@ -76,6 +76,8 @@ app.get('/ltm/:key', (req,res)=>{
 
 //salt length should be 7 characters
 app.get('/newUser/:use/:pass/:acKey', (req, res) => {
+	let request = req;
+	let resolve = res;
   for (i = 0; i < keywords.length; i++) {
     if (req.url.toLowerCase().indexOf(keywords[i]) != -1) {
       res.send("oi, fuck off with those SQL keywords (or semicolon, or either apostrophe), if this message isnt for you, please refrain from using full real words, semicolons, or apostrophes in your password/username");
@@ -83,13 +85,14 @@ app.get('/newUser/:use/:pass/:acKey', (req, res) => {
     }
   }
   con.query(`SELECT * FROM login; SELECT * FROM accountKeys WHERE auth = '${req.params.acKey}'`, (err, result) => {
-    if (err) console.log(err);
-    names = result[0].map(x => x.username);
+
+    if (err) console.error(err);
+
+    names = result[0].map(x => x.username);//<------------------ this one
     if (names.includes(req.params.use)) {
       res.send("account already exists");
       return false;
     }
-
     if (result[1].length == 0) {
       res.send("Invalid account creation key");
       return false;
@@ -110,12 +113,11 @@ app.get('/newUser/:use/:pass/:acKey', (req, res) => {
     hash = crypto.createHash('sha256');
     hash.update(req.params.pass + salt);
     sql = `INSERT INTO login (username, passHash, hashSalt) VALUES ('${req.params.use}', '${hash.digest('hex')}', '${salt}')`;
-    con.query(sql, (err, res) => {
+    con.query(sql, (err, result) => {
       if (err) throw err;
-      console.log("new user");
+      console.log("aids");
       res.send("account created");
     });
-
   });
 });
 
@@ -214,7 +216,7 @@ app.get('*', (req, res) => {
   res.sendFile(__dirname + "/404.html");
 });
 
-http.listen(port, (err) => {
-  if (err) return console.log('error', err);
+http.listen(port, (err)=> {
+  if (err) console.log('error', err);
   console.log('listening on port ' + port);
 });
